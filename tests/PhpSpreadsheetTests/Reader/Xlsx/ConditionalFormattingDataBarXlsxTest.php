@@ -120,20 +120,20 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
         $extDataBar = $rule1ext->getDataBar();
         self::assertNotEmpty($extDataBar);
         $pattern1 = [
-            'minLength'                            => '0',
-            'maxLength'                            => '100',
-            'border'                               => '1',
+            'minLength'                            => 0,
+            'maxLength'                            => 100,
+            'border'                               => true,
             'gradient'                             => null,
             'direction'                            => null,
             'axisPosition'                         => null,
-            'negativeBarBorderColorSameAsPositive' => '0',
+            'negativeBarBorderColorSameAsPositive' => false,
             'borderColor'                          => 'FF638EC6',
             'negativeFillColor'                    => 'FFFF0000',
             'negativeBorderColor'                  => 'FFFF0000',
         ];
         foreach ($pattern1 as $key => $value) {
             $funcName = 'get' . ucwords($key);
-            self::assertEquals($value, $extDataBar->$funcName(), $funcName . ' function patten');
+            self::assertEquals($value, $extDataBar->$funcName(), __METHOD__ . '::' . $funcName . ' function patten');
         }
 
         self::assertNotEmpty($extDataBar->getMinimumConditionalFormatValueObject());
@@ -176,10 +176,10 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
         $extDataBar = $rule1ext->getDataBar();
         self::assertNotEmpty($extDataBar);
         $pattern1 = [
-            'minLength'                            => '0',
-            'maxLength'                            => '100',
+            'minLength'                            => 0,
+            'maxLength'                            => 100,
             'border'                               => null,
-            'gradient'                             => '0',
+            'gradient'                             => false,
             'direction'                            => null,
             'axisPosition'                         => null,
             'negativeBarBorderColorSameAsPositive' => null,
@@ -235,10 +235,10 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
         $extDataBar = $rule1ext->getDataBar();
         self::assertNotEmpty($extDataBar);
         $pattern1 = [
-            'minLength'                            => '0',
-            'maxLength'                            => '100',
+            'minLength'                            => 0,
+            'maxLength'                            => 100,
             'border'                               => null,
-            'gradient'                             => '0',
+            'gradient'                             => false,
             'direction'                            => 'rightToLeft',
             'axisPosition'                         => 'none',
             'negativeBarBorderColorSameAsPositive' => null,
@@ -278,6 +278,7 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
         self::assertNotEmpty($dataBar);
         self::assertEquals(Conditional::CONDITION_DATABAR, $conditionalRule->getConditionType());
 
+        self::assertEquals(true, $dataBar->getShowValue());
         self::assertNotEmpty($dataBar->getMinimumConditionalFormatValueObject());
         self::assertNotEmpty($dataBar->getMaximumConditionalFormatValueObject());
         self::assertEquals('formula', $dataBar->getMinimumConditionalFormatValueObject()->getType());
@@ -295,10 +296,10 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
         $extDataBar = $rule1ext->getDataBar();
         self::assertNotEmpty($extDataBar);
         $pattern1 = [
-            'minLength'                            => '0',
-            'maxLength'                            => '100',
-            'border'                               => '1',
-            'gradient'                             => '0',
+            'minLength'                            => 0,
+            'maxLength'                            => 100,
+            'border'                               => true,
+            'gradient'                             => false,
             'direction'                            => 'leftToRight',
             'axisPosition'                         => 'middle',
             'negativeBarBorderColorSameAsPositive' => null,

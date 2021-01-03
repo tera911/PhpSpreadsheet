@@ -12,16 +12,16 @@ class ConditionalDataBarExtension
     /** @var int */
     private $maxLength;
 
-    /** @var int */
+    /** @var boolean|null */
     private $border;
 
-    /** @var int */
+    /** @var boolean|null */
     private $gradient;
 
     /** @var string */
     private $direction;
 
-    /** @var int */
+    /** @var boolean|null */
     private $negativeBarBorderColorSameAsPositive;
 
     /** @var string */
@@ -53,12 +53,14 @@ class ConditionalDataBarExtension
     public function getXmlAttributes()
     {
         $ret = [];
-        $attributes = [
-            'minLength', 'maxLength', 'border', 'gradient', 'direction', 'negativeBarBorderColorSameAsPositive', 'axisPosition',
-        ];
-        foreach ($attributes as $attrKey) {
+        foreach (['minLength', 'maxLength', 'direction', 'axisPosition'] as $attrKey) {
             if (null !== $this->{$attrKey}) {
                 $ret[$attrKey] = $this->{$attrKey};
+            }
+        }
+        foreach (['border', 'gradient', 'negativeBarBorderColorSameAsPositive'] as $attrKey) {
+            if (null !== $this->{$attrKey}) {
+                $ret[$attrKey] = $this->{$attrKey} ? '1' : '0';
             }
         }
 
@@ -115,14 +117,14 @@ class ConditionalDataBarExtension
     }
 
     /**
-     * @return int
+     * @return boolean|null
      */
     public function getBorder()
     {
         return $this->border;
     }
 
-    public function setBorder(int $border): self
+    public function setBorder(bool $border): self
     {
         $this->border = $border;
 
@@ -130,14 +132,14 @@ class ConditionalDataBarExtension
     }
 
     /**
-     * @return int
+     * @return boolean|null
      */
     public function getGradient()
     {
         return $this->gradient;
     }
 
-    public function setGradient(int $gradient): self
+    public function setGradient(bool $gradient): self
     {
         $this->gradient = $gradient;
 
@@ -160,14 +162,14 @@ class ConditionalDataBarExtension
     }
 
     /**
-     * @return int
+     * @return boolean|null
      */
     public function getNegativeBarBorderColorSameAsPositive()
     {
         return $this->negativeBarBorderColorSameAsPositive;
     }
 
-    public function setNegativeBarBorderColorSameAsPositive(int $negativeBarBorderColorSameAsPositive): self
+    public function setNegativeBarBorderColorSameAsPositive(bool $negativeBarBorderColorSameAsPositive): self
     {
         $this->negativeBarBorderColorSameAsPositive = $negativeBarBorderColorSameAsPositive;
 

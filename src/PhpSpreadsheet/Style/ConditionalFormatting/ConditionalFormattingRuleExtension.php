@@ -78,16 +78,16 @@ class ConditionalFormattingRuleExtension
             $extDataBarObj->setMaxLength((int)$dataBarAttribute->maxLength);
         }
         if ($dataBarAttribute->border) {
-            $extDataBarObj->setBorder((int)$dataBarAttribute->border);
+            $extDataBarObj->setBorder((bool)(string)$dataBarAttribute->border);
         }
         if ($dataBarAttribute->gradient) {
-            $extDataBarObj->setGradient((int)$dataBarAttribute->gradient);
+            $extDataBarObj->setGradient((bool)(string)$dataBarAttribute->gradient);
         }
         if ($dataBarAttribute->direction) {
             $extDataBarObj->setDirection((string)$dataBarAttribute->direction);
         }
         if ($dataBarAttribute->negativeBarBorderColorSameAsPositive) {
-            $extDataBarObj->setNegativeBarBorderColorSameAsPositive((int)$dataBarAttribute->negativeBarBorderColorSameAsPositive);
+            $extDataBarObj->setNegativeBarBorderColorSameAsPositive((bool)(string)$dataBarAttribute->negativeBarBorderColorSameAsPositive);
         }
         if ($dataBarAttribute->axisPosition) {
             $extDataBarObj->setAxisPosition((string)$dataBarAttribute->axisPosition);

@@ -7,6 +7,7 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 class ConditionalDataBar
 {
     /** <dataBar> attribute  */
+    /** @var boolean|null */
     private $showValue;
 
     /** <dataBar> children */
@@ -23,7 +24,7 @@ class ConditionalDataBar
     private $conditionalFormattingRuleExt;
 
     /**
-     * @return null|string
+     * @return boolean|null
      */
     public function getShowValue()
     {
@@ -31,7 +32,7 @@ class ConditionalDataBar
     }
 
     /**
-     * @param int $showValue
+     * @param boolean $showValue
      */
     public function setShowValue($showValue)
     {

@@ -114,7 +114,7 @@ class ConditionalStyles
         $dataBar = new ConditionalDataBar();
         //dataBar attribute
         if (isset($cfRule->dataBar['showValue'])) {
-            $dataBar->setShowValue((int)$cfRule->dataBar['showValue']);
+            $dataBar->setShowValue((boolean)$cfRule->dataBar['showValue']);
         }
 
         //dataBar children

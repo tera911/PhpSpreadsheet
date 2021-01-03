@@ -562,7 +562,7 @@ class Worksheet extends WriterPart
         /** @var $dataBar ConditionalDataBar */
         if ($dataBar) {
             $objWriter->startElement('dataBar');
-            self::writeAttributeIf($objWriter, null !== $dataBar->getShowValue(), 'showValue', (string)$dataBar->getShowValue());
+            self::writeAttributeIf($objWriter, null !== $dataBar->getShowValue(), 'showValue', $dataBar->getShowValue() ? '1' : '0');
 
             $minCfvo = $dataBar->getMinimumConditionalFormatValueObject();
             if ($minCfvo) {
