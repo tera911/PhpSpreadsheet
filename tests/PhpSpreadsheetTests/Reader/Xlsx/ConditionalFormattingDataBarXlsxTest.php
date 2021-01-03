@@ -7,6 +7,7 @@ use PhpOffice\PhpSpreadsheet\Shared\File;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Conditional;
 use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\ConditionalDataBar;
+use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\ConditionalFormatValueObject;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PHPUnit\Framework\TestCase;
 
@@ -60,8 +61,8 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
         $cond1->setConditionType(Conditional::CONDITION_DATABAR);
         $cond1->setDataBar(new ConditionalDataBar());
         $cond1->getDataBar()
-            ->addConditionalFormatValueObject('min')
-            ->addConditionalFormatValueObject('max')
+            ->setMinimumConditionalFormatValueObject(new ConditionalFormatValueObject('min'))
+            ->setMaximumConditionalFormatValueObject(new ConditionalFormatValueObject('max'))
             ->setColor(new Color(Color::COLOR_GREEN));
         $cond = [$cond1];
         $sheet->getStyle('A1:A5')->setConditionalStyles($cond);
@@ -82,12 +83,10 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
         self::assertNotEmpty($conditionalRule->getDataBar());
 
         $dataBar = $conditionalRule->getDataBar();
-        self::assertIsArray($dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $dataBar->getConditionalFormatValueObjects());
-        self::assertEquals('min', $dataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('max', $dataBar->getConditionalFormatValueObjects()[1]->getType());
+        self::assertNotEmpty($dataBar->getMinimumConditionalFormatValueObject());
+        self::assertNotEmpty($dataBar->getMaximumConditionalFormatValueObject());
+        self::assertEquals('min', $dataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('max', $dataBar->getMaximumConditionalFormatValueObject()->getType());
         self::assertEquals(Color::COLOR_GREEN, $dataBar->getColor()->getARGB());
     }
 
@@ -106,47 +105,41 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
 
         self::assertNotEmpty($dataBar);
         self::assertEquals(Conditional::CONDITION_DATABAR, $conditionalRule->getConditionType());
-        self::assertIsArray($dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $dataBar->getConditionalFormatValueObjects());
-        self::assertEquals('min', $dataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('max', $dataBar->getConditionalFormatValueObjects()[1]->getType());
+        self::assertNotEmpty($dataBar->getMinimumConditionalFormatValueObject());
+        self::assertNotEmpty($dataBar->getMaximumConditionalFormatValueObject());
+        self::assertEquals('min', $dataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('max', $dataBar->getMaximumConditionalFormatValueObject()->getType());
+
         self::assertEquals('FF638EC6', $dataBar->getColor()->getARGB());
-        self::assertNotEmpty($dataBar->getConditionalFormattingRuleExtList());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormattingRuleExtList());
-        self::assertArrayNotHasKey(1, $dataBar->getConditionalFormattingRuleExtList());
+        self::assertNotEmpty($dataBar->getConditionalFormattingRuleExt());
         //ext
-        $rule1ext = $dataBar->getConditionalFormattingRuleExtList()[0];
+        $rule1ext = $dataBar->getConditionalFormattingRuleExt();
         self::assertEquals('{72C64AE0-5CD9-164F-83D1-AB720F263E79}', $rule1ext->getId());
         self::assertEquals('dataBar', $rule1ext->getCfRule());
         self::assertEquals('A3:A23', $rule1ext->getSqref());
         $extDataBar = $rule1ext->getDataBar();
         self::assertNotEmpty($extDataBar);
         $pattern1 = [
-            'minLength' => '0',
-            'maxLength' => '100',
-            'border' => '1',
-            'gradient' => null,
-            'direction' => null,
-            'axisPosition' => null,
+            'minLength'                            => '0',
+            'maxLength'                            => '100',
+            'border'                               => '1',
+            'gradient'                             => null,
+            'direction'                            => null,
+            'axisPosition'                         => null,
             'negativeBarBorderColorSameAsPositive' => '0',
-            'borderColor' => 'FF638EC6',
-            'negativeFillColor' => 'FFFF0000',
-            'negativeBorderColor' => 'FFFF0000',
+            'borderColor'                          => 'FF638EC6',
+            'negativeFillColor'                    => 'FFFF0000',
+            'negativeBorderColor'                  => 'FFFF0000',
         ];
         foreach ($pattern1 as $key => $value) {
             $funcName = 'get' . ucwords($key);
             self::assertEquals($value, $extDataBar->$funcName(), $funcName . ' function patten');
         }
 
-        self::assertIsArray($extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $extDataBar->getConditionalFormatValueObjects());
-
-        self::assertEquals('autoMin', $extDataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('autoMax', $extDataBar->getConditionalFormatValueObjects()[1]->getType());
+        self::assertNotEmpty($extDataBar->getMinimumConditionalFormatValueObject());
+        self::assertNotEmpty($extDataBar->getMaximumConditionalFormatValueObject());
+        self::assertEquals('autoMin', $extDataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('autoMax', $extDataBar->getMaximumConditionalFormatValueObject()->getType());
 
         self::assertArrayHasKey('rgb', $extDataBar->getAxisColor());
         self::assertEquals('FF000000', $extDataBar->getAxisColor()['rgb']);
@@ -167,51 +160,44 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
 
         self::assertNotEmpty($dataBar);
         self::assertEquals(Conditional::CONDITION_DATABAR, $conditionalRule->getConditionType());
-        self::assertIsArray($dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $dataBar->getConditionalFormatValueObjects());
-        self::assertEquals('num', $dataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('num', $dataBar->getConditionalFormatValueObjects()[1]->getType());
-        self::assertEquals('-5', $dataBar->getConditionalFormatValueObjects()[0]->getValue());
-        self::assertEquals('5', $dataBar->getConditionalFormatValueObjects()[1]->getValue());
+        self::assertNotEmpty($dataBar->getMinimumConditionalFormatValueObject());
+        self::assertNotEmpty($dataBar->getMaximumConditionalFormatValueObject());
+        self::assertEquals('num', $dataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('num', $dataBar->getMaximumConditionalFormatValueObject()->getType());
+        self::assertEquals('-5', $dataBar->getMinimumConditionalFormatValueObject()->getValue());
+        self::assertEquals('5', $dataBar->getMaximumConditionalFormatValueObject()->getValue());
         self::assertEquals('FF63C384', $dataBar->getColor()->getARGB());
-        self::assertNotEmpty($dataBar->getConditionalFormattingRuleExtList());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormattingRuleExtList());
-        self::assertArrayNotHasKey(1, $dataBar->getConditionalFormattingRuleExtList());
+        self::assertNotEmpty($dataBar->getConditionalFormattingRuleExt());
         //ext
-        $rule1ext = $dataBar->getConditionalFormattingRuleExtList()[0];
+        $rule1ext = $dataBar->getConditionalFormattingRuleExt();
         self::assertEquals('{98904F60-57F0-DF47-B480-691B20D325E3}', $rule1ext->getId());
         self::assertEquals('dataBar', $rule1ext->getCfRule());
         self::assertEquals('B3:B23', $rule1ext->getSqref());
         $extDataBar = $rule1ext->getDataBar();
         self::assertNotEmpty($extDataBar);
         $pattern1 = [
-            'minLength' => '0',
-            'maxLength' => '100',
-            'border' => null,
-            'gradient' => '0',
-            'direction' => null,
-            'axisPosition' => null,
+            'minLength'                            => '0',
+            'maxLength'                            => '100',
+            'border'                               => null,
+            'gradient'                             => '0',
+            'direction'                            => null,
+            'axisPosition'                         => null,
             'negativeBarBorderColorSameAsPositive' => null,
-            'borderColor' => null,
-            'negativeFillColor' => 'FFFF0000',
-            'negativeBorderColor' => null,
+            'borderColor'                          => null,
+            'negativeFillColor'                    => 'FFFF0000',
+            'negativeBorderColor'                  => null,
         ];
         foreach ($pattern1 as $key => $value) {
             $funcName = 'get' . ucwords($key);
             self::assertEquals($value, $extDataBar->$funcName(), $funcName . ' function patten');
         }
 
-        self::assertIsArray($extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $extDataBar->getConditionalFormatValueObjects());
-
-        self::assertEquals('num', $extDataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('num', $extDataBar->getConditionalFormatValueObjects()[1]->getType());
-        self::assertEquals('-5', $extDataBar->getConditionalFormatValueObjects()[0]->getCellFormula());
-        self::assertEquals('5', $extDataBar->getConditionalFormatValueObjects()[1]->getCellFormula());
+        self::assertNotEmpty($extDataBar->getMinimumConditionalFormatValueObject());
+        self::assertNotEmpty($extDataBar->getMaximumConditionalFormatValueObject());
+        self::assertEquals('num', $extDataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('num', $extDataBar->getMaximumConditionalFormatValueObject()->getType());
+        self::assertEquals('-5', $extDataBar->getMinimumConditionalFormatValueObject()->getCellFormula());
+        self::assertEquals('5', $extDataBar->getMaximumConditionalFormatValueObject()->getCellFormula());
 
         self::assertArrayHasKey('rgb', $extDataBar->getAxisColor());
         self::assertEquals('FF000000', $extDataBar->getAxisColor()['rgb']);
@@ -232,47 +218,45 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
 
         self::assertNotEmpty($dataBar);
         self::assertEquals(Conditional::CONDITION_DATABAR, $conditionalRule->getConditionType());
-        self::assertIsArray($dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $dataBar->getConditionalFormatValueObjects());
-        self::assertEquals('min', $dataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('max', $dataBar->getConditionalFormatValueObjects()[1]->getType());
+        self::assertNotEmpty($dataBar->getMinimumConditionalFormatValueObject());
+        self::assertNotEmpty($dataBar->getMaximumConditionalFormatValueObject());
+        self::assertEquals('min', $dataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('max', $dataBar->getMaximumConditionalFormatValueObject()->getType());
+        self::assertEmpty($dataBar->getMinimumConditionalFormatValueObject()->getValue());
+        self::assertEmpty($dataBar->getMaximumConditionalFormatValueObject()->getValue());
         self::assertEquals('FFFF555A', $dataBar->getColor()->getARGB());
-        self::assertNotEmpty($dataBar->getConditionalFormattingRuleExtList());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormattingRuleExtList());
-        self::assertArrayNotHasKey(1, $dataBar->getConditionalFormattingRuleExtList());
+        self::assertNotEmpty($dataBar->getConditionalFormattingRuleExt());
+
         //ext
-        $rule1ext = $dataBar->getConditionalFormattingRuleExtList()[0];
+        $rule1ext = $dataBar->getConditionalFormattingRuleExt();
         self::assertEquals('{453C04BA-7ABD-8548-8A17-D9CFD2BDABE9}', $rule1ext->getId());
         self::assertEquals('dataBar', $rule1ext->getCfRule());
         self::assertEquals('C3:C23', $rule1ext->getSqref());
         $extDataBar = $rule1ext->getDataBar();
         self::assertNotEmpty($extDataBar);
         $pattern1 = [
-            'minLength' => '0',
-            'maxLength' => '100',
-            'border' => null,
-            'gradient' => '0',
-            'direction' => 'rightToLeft',
-            'axisPosition' => 'none',
+            'minLength'                            => '0',
+            'maxLength'                            => '100',
+            'border'                               => null,
+            'gradient'                             => '0',
+            'direction'                            => 'rightToLeft',
+            'axisPosition'                         => 'none',
             'negativeBarBorderColorSameAsPositive' => null,
-            'borderColor' => null,
-            'negativeFillColor' => 'FFFF0000',
-            'negativeBorderColor' => null,
+            'borderColor'                          => null,
+            'negativeFillColor'                    => 'FFFF0000',
+            'negativeBorderColor'                  => null,
         ];
         foreach ($pattern1 as $key => $value) {
             $funcName = 'get' . ucwords($key);
             self::assertEquals($value, $extDataBar->$funcName(), $funcName . ' function patten');
         }
 
-        self::assertIsArray($extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $extDataBar->getConditionalFormatValueObjects());
-
-        self::assertEquals('autoMin', $extDataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('autoMax', $extDataBar->getConditionalFormatValueObjects()[1]->getType());
+        self::assertNotEmpty($extDataBar->getMinimumConditionalFormatValueObject());
+        self::assertNotEmpty($extDataBar->getMaximumConditionalFormatValueObject());
+        self::assertEquals('autoMin', $extDataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('autoMax', $extDataBar->getMaximumConditionalFormatValueObject()->getType());
+        self::assertEmpty($extDataBar->getMinimumConditionalFormatValueObject()->getCellFormula());
+        self::assertEmpty($extDataBar->getMaximumConditionalFormatValueObject()->getCellFormula());
 
         self::assertArrayHasKey('rgb', $extDataBar->getAxisColor());
         self::assertEmpty($extDataBar->getAxisColor()['rgb']);
@@ -293,50 +277,46 @@ class ConditionalFormattingDataBarXlsxTest extends TestCase
 
         self::assertNotEmpty($dataBar);
         self::assertEquals(Conditional::CONDITION_DATABAR, $conditionalRule->getConditionType());
-        self::assertIsArray($dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $dataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $dataBar->getConditionalFormatValueObjects());
-        self::assertEquals('formula', $dataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('formula', $dataBar->getConditionalFormatValueObjects()[1]->getType());
-        self::assertEquals('3+2', $dataBar->getConditionalFormatValueObjects()[0]->getValue());
-        self::assertEquals('10+10', $dataBar->getConditionalFormatValueObjects()[1]->getValue());
+
+        self::assertNotEmpty($dataBar->getMinimumConditionalFormatValueObject());
+        self::assertNotEmpty($dataBar->getMaximumConditionalFormatValueObject());
+        self::assertEquals('formula', $dataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('formula', $dataBar->getMaximumConditionalFormatValueObject()->getType());
+        self::assertEquals('3+2', $dataBar->getMinimumConditionalFormatValueObject()->getValue());
+        self::assertEquals('10+10', $dataBar->getMaximumConditionalFormatValueObject()->getValue());
         self::assertEquals('FFFF555A', $dataBar->getColor()->getARGB());
-        self::assertNotEmpty($dataBar->getConditionalFormattingRuleExtList());
-        self::assertArrayHasKey(0, $dataBar->getConditionalFormattingRuleExtList());
-        self::assertArrayNotHasKey(1, $dataBar->getConditionalFormattingRuleExtList());
+        self::assertNotEmpty($dataBar->getConditionalFormattingRuleExt());
+
         //ext
-        $rule1ext = $dataBar->getConditionalFormattingRuleExtList()[0];
+        $rule1ext = $dataBar->getConditionalFormattingRuleExt();
         self::assertEquals('{6C1E066A-E240-3D4A-98F8-8CC218B0DFD2}', $rule1ext->getId());
         self::assertEquals('dataBar', $rule1ext->getCfRule());
         self::assertEquals('D3:D23', $rule1ext->getSqref());
         $extDataBar = $rule1ext->getDataBar();
         self::assertNotEmpty($extDataBar);
         $pattern1 = [
-            'minLength' => '0',
-            'maxLength' => '100',
-            'border' => '1',
-            'gradient' => '0',
-            'direction' => 'leftToRight',
-            'axisPosition' => 'middle',
+            'minLength'                            => '0',
+            'maxLength'                            => '100',
+            'border'                               => '1',
+            'gradient'                             => '0',
+            'direction'                            => 'leftToRight',
+            'axisPosition'                         => 'middle',
             'negativeBarBorderColorSameAsPositive' => null,
-            'borderColor' => 'FF000000',
-            'negativeFillColor' => 'FFFF0000',
-            'negativeBorderColor' => null,
+            'borderColor'                          => 'FF000000',
+            'negativeFillColor'                    => 'FFFF0000',
+            'negativeBorderColor'                  => null,
         ];
         foreach ($pattern1 as $key => $value) {
             $funcName = 'get' . ucwords($key);
             self::assertEquals($value, $extDataBar->$funcName(), $funcName . ' function patten');
         }
-        self::assertIsArray($extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(0, $extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayHasKey(1, $extDataBar->getConditionalFormatValueObjects());
-        self::assertArrayNotHasKey(2, $extDataBar->getConditionalFormatValueObjects());
 
-        self::assertEquals('formula', $extDataBar->getConditionalFormatValueObjects()[0]->getType());
-        self::assertEquals('formula', $extDataBar->getConditionalFormatValueObjects()[1]->getType());
-        self::assertEquals('3+2', $extDataBar->getConditionalFormatValueObjects()[0]->getCellFormula());
-        self::assertEquals('10+10', $extDataBar->getConditionalFormatValueObjects()[1]->getCellFormula());
+        self::assertNotEmpty($extDataBar->getMaximumConditionalFormatValueObject());
+        self::assertNotEmpty($extDataBar->getMinimumConditionalFormatValueObject());
+        self::assertEquals('formula', $extDataBar->getMinimumConditionalFormatValueObject()->getType());
+        self::assertEquals('formula', $extDataBar->getMaximumConditionalFormatValueObject()->getType());
+        self::assertEquals('3+2', $extDataBar->getMinimumConditionalFormatValueObject()->getCellFormula());
+        self::assertEquals('10+10', $extDataBar->getMaximumConditionalFormatValueObject()->getCellFormula());
 
         self::assertArrayHasKey('rgb', $extDataBar->getAxisColor());
         self::assertEquals('FF000000', $extDataBar->getAxisColor()['rgb']);

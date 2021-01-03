@@ -2,12 +2,14 @@
 
 namespace PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+use PhpOffice\PhpSpreadsheet\Calculation\Database;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 use PhpOffice\PhpSpreadsheet\Shared\XMLWriter;
 use PhpOffice\PhpSpreadsheet\Style\Conditional;
+use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\ConditionalDataBar;
 use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\ConditionalFormattingRuleExtension;
 use PhpOffice\PhpSpreadsheet\Worksheet\AutoFilter\Column;
 use PhpOffice\PhpSpreadsheet\Worksheet\AutoFilter\Column\Rule;
@@ -321,8 +323,8 @@ class Worksheet extends WriterPart
 
         // Set Zero Height row
         if (
-            (string) $pSheet->getDefaultRowDimension()->getZeroHeight() === '1' ||
-            strtolower((string) $pSheet->getDefaultRowDimension()->getZeroHeight()) == 'true'
+            (string)$pSheet->getDefaultRowDimension()->getZeroHeight() === '1' ||
+            strtolower((string)$pSheet->getDefaultRowDimension()->getZeroHeight()) == 'true'
         ) {
             $objWriter->writeAttribute('zeroHeight', '1');
         }
@@ -339,7 +341,7 @@ class Worksheet extends WriterPart
                 $outlineLevelRow = $dimension->getOutlineLevel();
             }
         }
-        $objWriter->writeAttribute('outlineLevelRow', (int) $outlineLevelRow);
+        $objWriter->writeAttribute('outlineLevelRow', (int)$outlineLevelRow);
 
         // Outline level - column
         $outlineLevelCol = 0;
@@ -348,7 +350,7 @@ class Worksheet extends WriterPart
                 $outlineLevelCol = $dimension->getOutlineLevel();
             }
         }
-        $objWriter->writeAttribute('outlineLevelCol', (int) $outlineLevelCol);
+        $objWriter->writeAttribute('outlineLevelCol', (int)$outlineLevelCol);
 
         $objWriter->endElement();
     }
@@ -522,14 +524,26 @@ class Worksheet extends WriterPart
         foreach ($dataBar->getXmlAttributes() as $attrKey => $val) {
             $objWriter->writeAttribute($attrKey, $val);
         }
-        foreach ($dataBar->getConditionalFormatValueObjects() as $cfvo) {
+        $minCfvo = $dataBar->getMinimumConditionalFormatValueObject();
+        if ($minCfvo) {
             $objWriter->startElementNs($prefix, 'cfvo', null);
-            $objWriter->writeAttribute('type', $cfvo->getType());
-            if ($cfvo->getCellFormula()) {
-                $objWriter->writeElement('xm:f', $cfvo->getCellFormula());
+            $objWriter->writeAttribute('type', $minCfvo->getType());
+            if ($minCfvo->getCellFormula()) {
+                $objWriter->writeElement('xm:f', $minCfvo->getCellFormula());
             }
             $objWriter->endElement(); //end cfvo
         }
+
+        $maxCfvo = $dataBar->getMaximumConditionalFormatValueObject();
+        if ($maxCfvo) {
+            $objWriter->startElementNs($prefix, 'cfvo', null);
+            $objWriter->writeAttribute('type', $maxCfvo->getType());
+            if ($maxCfvo->getCellFormula()) {
+                $objWriter->writeElement('xm:f', $maxCfvo->getCellFormula());
+            }
+            $objWriter->endElement(); //end cfvo
+        }
+
         foreach ($dataBar->getXmlElements() as $elmKey => $elmAttr) {
             $objWriter->startElementNs($prefix, $elmKey, null);
             foreach ($elmAttr as $attrKey => $attrVal) {
@@ -545,13 +559,23 @@ class Worksheet extends WriterPart
 
     private static function writeDataBarElements(XMLWriter $objWriter, $dataBar): void
     {
+        /** @var $dataBar ConditionalDataBar */
         if ($dataBar) {
             $objWriter->startElement('dataBar');
-            self::writeAttributeIf($objWriter, null !== $dataBar->getShowValue(), 'showValue', (string) $dataBar->getShowValue());
-            foreach ($dataBar->getConditionalFormatValueObjects() as $cfvo) {
+            self::writeAttributeIf($objWriter, null !== $dataBar->getShowValue(), 'showValue', (string)$dataBar->getShowValue());
+
+            $minCfvo = $dataBar->getMinimumConditionalFormatValueObject();
+            if ($minCfvo) {
                 $objWriter->startElement('cfvo');
-                self::writeAttributeIf($objWriter, $cfvo->getType(), 'type', (string) $cfvo->getType());
-                self::writeAttributeIf($objWriter, $cfvo->getValue(), 'val', (string) $cfvo->getValue());
+                self::writeAttributeIf($objWriter, $minCfvo->getType(), 'type', (string)$minCfvo->getType());
+                self::writeAttributeIf($objWriter, $minCfvo->getValue(), 'val', (string)$minCfvo->getValue());
+                $objWriter->endElement();
+            }
+            $maxCfvo = $dataBar->getMaximumConditionalFormatValueObject();
+            if ($maxCfvo) {
+                $objWriter->startElement('cfvo');
+                self::writeAttributeIf($objWriter, $maxCfvo->getType(), 'type', (string)$maxCfvo->getType());
+                self::writeAttributeIf($objWriter, $maxCfvo->getValue(), 'val', (string)$maxCfvo->getValue());
                 $objWriter->endElement();
             }
             if ($dataBar->getColor()) {
@@ -561,16 +585,15 @@ class Worksheet extends WriterPart
             }
             $objWriter->endElement(); // end dataBar
 
-            if (count($dataBar->getConditionalFormattingRuleExtList()) > 0) {
+            if ($dataBar->getConditionalFormattingRuleExt()) {
                 $objWriter->startElement('extLst');
-                foreach ($dataBar->getConditionalFormattingRuleExtList() as $extension) {
-                    $objWriter->startElement('ext');
-                    $objWriter->writeAttribute('uri', '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}');
-                    $objWriter->startElementNs('x14', 'id', null);
-                    $objWriter->text($extension->getId());
-                    $objWriter->endElement();
-                    $objWriter->endElement();
-                }
+                $extension = $dataBar->getConditionalFormattingRuleExt();
+                $objWriter->startElement('ext');
+                $objWriter->writeAttribute('uri', '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}');
+                $objWriter->startElementNs('x14', 'id', null);
+                $objWriter->text($extension->getId());
+                $objWriter->endElement();
+                $objWriter->endElement();
                 $objWriter->endElement(); //end extLst
             }
         }
@@ -1174,7 +1197,7 @@ class Worksheet extends WriterPart
         //force a decimal to be written if the type is float
         if (is_float($cellValue)) {
             // force point as decimal separator in case current locale uses comma
-            $cellValue = str_replace(',', '.', (string) $cellValue);
+            $cellValue = str_replace(',', '.', (string)$cellValue);
             if (strpos($cellValue, '.') === false) {
                 $cellValue = $cellValue . '.0';
             }
@@ -1374,10 +1397,8 @@ class Worksheet extends WriterPart
             /** @var Conditional $conditional */
             foreach ($conditionalStyles as $conditional) {
                 $dataBar = $conditional->getDataBar();
-                if ($dataBar && count($dataBar->getConditionalFormattingRuleExtList()) > 0) {
-                    foreach ($dataBar->getConditionalFormattingRuleExtList() as $ext) {
-                        $conditionalFormattingRuleExtList[] = $ext;
-                    }
+                if ($dataBar && $dataBar->getConditionalFormattingRuleExt()) {
+                    $conditionalFormattingRuleExtList[] = $dataBar->getConditionalFormattingRuleExt();
                 }
             }
         }

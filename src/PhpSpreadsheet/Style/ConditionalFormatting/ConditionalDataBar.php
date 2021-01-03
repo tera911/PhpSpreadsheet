@@ -10,15 +10,17 @@ class ConditionalDataBar
     private $showValue;
 
     /** <dataBar> children */
-
-    /** @var ConditionalFormatValueObject[] */
-    private $conditionalFormatValueObjects = [];
+    /** @var ConditionalFormatValueObject */
+    private $minimumConditionalFormatValueObject;
+    /** @var ConditionalFormatValueObject */
+    private $maximumConditionalFormatValueObject;
 
     /** @var Color */
     private $color;
 
-    /** @var ConditionalFormattingRuleExtension[] */
-    private $conditionalFormattingRuleExtList = [];
+    /** <extLst> */
+    /** @var ConditionalFormattingRuleExtension */
+    private $conditionalFormattingRuleExt;
 
     /**
      * @return null|string
@@ -39,36 +41,39 @@ class ConditionalDataBar
     }
 
     /**
-     * @return ConditionalFormatValueObject[]
+     * @return ConditionalFormatValueObject
      */
-    public function getConditionalFormatValueObjects(): array
+    public function getMinimumConditionalFormatValueObject()
     {
-        return $this->conditionalFormatValueObjects;
+        return $this->minimumConditionalFormatValueObject;
     }
 
     /**
-     * @param ConditionalFormatValueObject[] $conditionalFormatValueObjects
+     * @param ConditionalFormatValueObject $minimumConditionalFormatValueObject
      */
-    public function setConditionalFormatValueObjects(array $conditionalFormatValueObjects)
+    public function setMinimumConditionalFormatValueObject(ConditionalFormatValueObject $minimumConditionalFormatValueObject)
     {
-        $this->conditionalFormatValueObjects = $conditionalFormatValueObjects;
-
+        $this->minimumConditionalFormatValueObject = $minimumConditionalFormatValueObject;
         return $this;
     }
 
     /**
-     * @param mixed $type
-     * @param null|mixed $value
-     * @param null|mixed $cellFomula
-     *
-     * @return $this
+     * @return ConditionalFormatValueObject
      */
-    public function addConditionalFormatValueObject($type, $value = null, $cellFomula = null): self
+    public function getMaximumConditionalFormatValueObject()
     {
-        $this->conditionalFormatValueObjects[] = new ConditionalFormatValueObject($type, $value, $cellFomula);
+        return $this->maximumConditionalFormatValueObject;
+    }
 
+    /**
+     * @param ConditionalFormatValueObject $maximumConditionalFormatValueObject
+     */
+    public function setMaximumConditionalFormatValueObject(ConditionalFormatValueObject $maximumConditionalFormatValueObject)
+    {
+        $this->maximumConditionalFormatValueObject = $maximumConditionalFormatValueObject;
         return $this;
     }
+
 
     public function getColor(): Color
     {
@@ -83,30 +88,19 @@ class ConditionalDataBar
     }
 
     /**
-     * @return ConditionalFormattingRuleExtension[]
+     * @return ConditionalFormattingRuleExtension
      */
-    public function getConditionalFormattingRuleExtList(): array
+    public function getConditionalFormattingRuleExt()
     {
-        return $this->conditionalFormattingRuleExtList;
+        return $this->conditionalFormattingRuleExt;
     }
 
     /**
-     * @param ConditionalFormattingRuleExtension[] $conditionalFormattingRuleExtList
+     * @param ConditionalFormattingRuleExtension $conditionalFormattingRuleExt
      */
-    public function setConditionalFormattingRuleExtList(array $conditionalFormattingRuleExtList): self
+    public function setConditionalFormattingRuleExt(ConditionalFormattingRuleExtension $conditionalFormattingRuleExt)
     {
-        $this->conditionalFormattingRuleExtList = $conditionalFormattingRuleExtList;
-
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function addConditionalFormattingRuleExtList(ConditionalFormattingRuleExtension $conditionalFormattingRuleExt): self
-    {
-        $this->conditionalFormattingRuleExtList[] = $conditionalFormattingRuleExt;
-
+        $this->conditionalFormattingRuleExt = $conditionalFormattingRuleExt;
         return $this;
     }
 }

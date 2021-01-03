@@ -29,8 +29,10 @@ class ConditionalDataBarExtension
 
     // <dataBar> children
 
-    /** @var ConditionalFormatValueObject[] */
-    private $conditionalFormatValueObjects = [];
+    /** @var ConditionalFormatValueObject */
+    private $maximumConditionalFormatValueObject;
+    /** @var ConditionalFormatValueObject */
+    private $minimumConditionalFormatValueObject;
 
     /** @var string */
     private $borderColor;
@@ -43,9 +45,9 @@ class ConditionalDataBarExtension
 
     /** @var array */
     private $axisColor = [
-        'rgb' => null,
+        'rgb'   => null,
         'theme' => null,
-        'tint' => null,
+        'tint'  => null,
     ];
 
     public function getXmlAttributes()
@@ -187,27 +189,39 @@ class ConditionalDataBarExtension
         return $this;
     }
 
+
     /**
-     * @return ConditionalFormatValueObject[]
+     * @return ConditionalFormatValueObject
      */
-    public function getConditionalFormatValueObjects(): array
+    public function getMaximumConditionalFormatValueObject()
     {
-        return $this->conditionalFormatValueObjects;
+        return $this->maximumConditionalFormatValueObject;
     }
 
     /**
-     * @param ConditionalFormatValueObject[] $conditionalFormatValueObjects
+     * @param ConditionalFormatValueObject $maximumConditionalFormatValueObject
      */
-    public function setConditionalFormatValueObjects(array $conditionalFormatValueObjects): self
+    public function setMaximumConditionalFormatValueObject(ConditionalFormatValueObject $maximumConditionalFormatValueObject)
     {
-        $this->conditionalFormatValueObjects = $conditionalFormatValueObjects;
-
+        $this->maximumConditionalFormatValueObject = $maximumConditionalFormatValueObject;
         return $this;
     }
 
-    public function addConditionalFormatValueObject($type, $value = null, $cellFormula = null): void
+    /**
+     * @return ConditionalFormatValueObject
+     */
+    public function getMinimumConditionalFormatValueObject()
     {
-        $this->conditionalFormatValueObjects[] = new ConditionalFormatValueObject($type, $value, $cellFormula);
+        return $this->minimumConditionalFormatValueObject;
+    }
+
+    /**
+     * @param ConditionalFormatValueObject $minimumConditionalFormatValueObject
+     */
+    public function setMinimumConditionalFormatValueObject(ConditionalFormatValueObject $minimumConditionalFormatValueObject)
+    {
+        $this->minimumConditionalFormatValueObject = $minimumConditionalFormatValueObject;
+        return $this;
     }
 
     /**
@@ -268,9 +282,9 @@ class ConditionalDataBarExtension
     public function setAxisColor($rgb, $theme = null, $tint = null): self
     {
         $this->axisColor = [
-            'rgb' => $rgb,
+            'rgb'   => $rgb,
             'theme' => $theme,
-            'tint' => $tint,
+            'tint'  => $tint,
         ];
 
         return $this;

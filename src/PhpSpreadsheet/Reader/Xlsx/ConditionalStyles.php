@@ -6,6 +6,7 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Conditional;
 use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\ConditionalDataBar;
 use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\ConditionalFormattingRuleExtension;
+use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\ConditionalFormatValueObject;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use SimpleXMLElement;
 
@@ -39,17 +40,17 @@ class ConditionalStyles
         foreach ($xmlSheet->conditionalFormatting as $conditional) {
             foreach ($conditional->cfRule as $cfRule) {
                 if (
-                    ((string) $cfRule['type'] == Conditional::CONDITION_NONE
-                        || (string) $cfRule['type'] == Conditional::CONDITION_CELLIS
-                        || (string) $cfRule['type'] == Conditional::CONDITION_CONTAINSTEXT
-                        || (string) $cfRule['type'] == Conditional::CONDITION_CONTAINSBLANKS
-                        || (string) $cfRule['type'] == Conditional::CONDITION_NOTCONTAINSBLANKS
-                        || (string) $cfRule['type'] == Conditional::CONDITION_EXPRESSION)
-                    && isset($this->dxfs[(int) ($cfRule['dxfId'])])
+                    ((string)$cfRule['type'] == Conditional::CONDITION_NONE
+                        || (string)$cfRule['type'] == Conditional::CONDITION_CELLIS
+                        || (string)$cfRule['type'] == Conditional::CONDITION_CONTAINSTEXT
+                        || (string)$cfRule['type'] == Conditional::CONDITION_CONTAINSBLANKS
+                        || (string)$cfRule['type'] == Conditional::CONDITION_NOTCONTAINSBLANKS
+                        || (string)$cfRule['type'] == Conditional::CONDITION_EXPRESSION)
+                    && isset($this->dxfs[(int)($cfRule['dxfId'])])
                 ) {
-                    $conditionals[(string) $conditional['sqref']][(int) ($cfRule['priority'])] = $cfRule;
-                } elseif ((string) $cfRule['type'] == Conditional::CONDITION_DATABAR) {
-                    $conditionals[(string) $conditional['sqref']][(int) ($cfRule['priority'])] = $cfRule;
+                    $conditionals[(string)$conditional['sqref']][(int)($cfRule['priority'])] = $cfRule;
+                } elseif ((string)$cfRule['type'] == Conditional::CONDITION_DATABAR) {
+                    $conditionals[(string)$conditional['sqref']][(int)($cfRule['priority'])] = $cfRule;
                 }
             }
         }
@@ -77,29 +78,29 @@ class ConditionalStyles
         $conditionalStyles = [];
         foreach ($cfRules as $cfRule) {
             $objConditional = new Conditional();
-            $objConditional->setConditionType((string) $cfRule['type']);
-            $objConditional->setOperatorType((string) $cfRule['operator']);
+            $objConditional->setConditionType((string)$cfRule['type']);
+            $objConditional->setOperatorType((string)$cfRule['operator']);
 
-            if ((string) $cfRule['text'] != '') {
-                $objConditional->setText((string) $cfRule['text']);
+            if ((string)$cfRule['text'] != '') {
+                $objConditional->setText((string)$cfRule['text']);
             }
 
-            if (isset($cfRule['stopIfTrue']) && (int) $cfRule['stopIfTrue'] === 1) {
+            if (isset($cfRule['stopIfTrue']) && (int)$cfRule['stopIfTrue'] === 1) {
                 $objConditional->setStopIfTrue(true);
             }
 
             if (count($cfRule->formula) > 1) {
                 foreach ($cfRule->formula as $formula) {
-                    $objConditional->addCondition((string) $formula);
+                    $objConditional->addCondition((string)$formula);
                 }
             } else {
-                $objConditional->addCondition((string) $cfRule->formula);
+                $objConditional->addCondition((string)$cfRule->formula);
             }
 
             if (isset($cfRule->dataBar)) {
                 $objConditional->setDataBar($this->readDataBarOfConditionalRule($cfRule, $conditionalFormattingRuleExtensions));
             } else {
-                $objConditional->setStyle(clone $this->dxfs[(int) ($cfRule['dxfId'])]);
+                $objConditional->setStyle(clone $this->dxfs[(int)($cfRule['dxfId'])]);
             }
 
             $conditionalStyles[] = $objConditional;
@@ -113,27 +114,34 @@ class ConditionalStyles
         $dataBar = new ConditionalDataBar();
         //dataBar attribute
         if (isset($cfRule->dataBar['showValue'])) {
-            $dataBar->setShowValue((int) $cfRule->dataBar['showValue']);
+            $dataBar->setShowValue((int)$cfRule->dataBar['showValue']);
         }
 
         //dataBar children
         //conditionalFormatValueObjects
         $cfvoXml = $cfRule->dataBar->cfvo;
+        $cfvoIndex = 0;
         foreach ((count($cfvoXml) > 1 ? $cfvoXml : [$cfvoXml]) as $cfvo) {
-            $dataBar->addConditionalFormatValueObject((string) $cfvo['type'], (string) $cfvo['val']);
+            if ($cfvoIndex === 0) {
+                $dataBar->setMinimumConditionalFormatValueObject(new ConditionalFormatValueObject((string)$cfvo['type'], (string)$cfvo['val']));
+            }
+            if ($cfvoIndex === 1) {
+                $dataBar->setMaximumConditionalFormatValueObject(new ConditionalFormatValueObject((string)$cfvo['type'], (string)$cfvo['val']));
+            }
+            $cfvoIndex++;
         }
 
         //color
         if (isset($cfRule->dataBar->color)) {
-            $dataBar->setColor(new Color((string) $cfRule->dataBar->color['rgb']));
+            $dataBar->setColor(new Color((string)$cfRule->dataBar->color['rgb']));
         }
         //extLst
         if (isset($cfRule->extLst)) {
             $ns = $cfRule->extLst->getNamespaces(true);
             foreach ((count($cfRule->extLst) > 0 ? $cfRule->extLst->ext : [$cfRule->extLst->ext]) as $ext) {
-                $extId = (string) $ext->children($ns['x14'])->id;
-                if (isset($conditionalFormattingRuleExtensions[$extId]) && (string) $ext['uri'] === '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}') {
-                    $dataBar->addConditionalFormattingRuleExtList($conditionalFormattingRuleExtensions[$extId]);
+                $extId = (string)$ext->children($ns['x14'])->id;
+                if (isset($conditionalFormattingRuleExtensions[$extId]) && (string)$ext['uri'] === '{B025F937-C7B1-47D3-B67F-A62EFF666E3E}') {
+                    $dataBar->setConditionalFormattingRuleExt($conditionalFormattingRuleExtensions[$extId]);
                 }
             }
         }
