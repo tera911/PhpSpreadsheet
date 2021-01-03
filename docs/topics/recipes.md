@@ -884,6 +884,17 @@ $spreadsheet->getActiveSheet()
     );
 ```
 
+### DataBar of Conditional formatting
+The basics are the same as conditional formatting.
+Additional DataBar object to conditional formatting.  
+
+```php
+$a = "";
+```
+
+Please refer to the image below for the setting items.
+![10-databar-of-conditional-formatting.png](./images/10-databar-of-conditional-formatting.png)
+
 ## Add a comment to a cell
 
 To add a comment to a cell, use the following code. The example below
