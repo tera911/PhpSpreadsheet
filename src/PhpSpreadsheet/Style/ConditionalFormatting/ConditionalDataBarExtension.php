@@ -2,6 +2,8 @@
 
 namespace PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting;
 
+use PhpOffice\PhpSpreadsheet\Style\Color;
+
 class ConditionalDataBarExtension
 {
     /** <dataBar> attributes */

@@ -133,7 +133,7 @@ class ConditionalStyles
 
         //color
         if (isset($cfRule->dataBar->color)) {
-            $dataBar->setColor(new Color((string)$cfRule->dataBar->color['rgb']));
+            $dataBar->setColor((string)$cfRule->dataBar->color['rgb']);
         }
         //extLst
         if (isset($cfRule->extLst)) {

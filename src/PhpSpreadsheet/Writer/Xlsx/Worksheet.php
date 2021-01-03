@@ -520,7 +520,7 @@ class Worksheet extends WriterPart
         $objWriter->writeAttribute('type', $ruleExtension->getCfRule());
         $objWriter->writeAttribute('id', $ruleExtension->getId());
         $objWriter->startElementNs($prefix, 'dataBar', null);
-        $dataBar = $ruleExtension->getDataBar();
+        $dataBar = $ruleExtension->getDataBarExt();
         foreach ($dataBar->getXmlAttributes() as $attrKey => $val) {
             $objWriter->writeAttribute($attrKey, $val);
         }
@@ -580,7 +580,7 @@ class Worksheet extends WriterPart
             }
             if ($dataBar->getColor()) {
                 $objWriter->startElement('color');
-                $objWriter->writeAttribute('rgb', $dataBar->getColor()->getARGB());
+                $objWriter->writeAttribute('rgb', $dataBar->getColor());
                 $objWriter->endElement();
             }
             $objWriter->endElement(); // end dataBar

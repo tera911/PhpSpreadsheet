@@ -27,10 +27,29 @@ class ConditionalFormattingRuleExtension
      *
      * @param $id
      */
-    public function __construct($id, string $cfRule = self::CONDITION_EXTENSION_DATABAR)
+    public function __construct($id = null, string $cfRule = self::CONDITION_EXTENSION_DATABAR)
     {
-        $this->id = $id;
+        if (is_null($id)) {
+            $this->id = '{' . $this->generateUuid() . '}';
+        } else {
+            $this->id = $id;
+        }
         $this->cfRule = $cfRule;
+    }
+
+    private function generateUuid()
+    {
+        $chars = str_split('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx');
+
+        foreach ($chars as $i => $char) {
+            if ($char === 'x') {
+                $chars[$i] = dechex(random_int(0, 15));
+            } elseif ($char === 'y') {
+                $chars[$i] = dechex(random_int(8, 11));
+            }
+        }
+
+        return implode('', $chars);
     }
 
     public static function parseExtLstXml($extLstXml)
@@ -56,7 +75,7 @@ class ConditionalFormattingRuleExtension
                     $conditionalFormattingRuleExtensions[$extFormattingRuleObj->getId()] = $extFormattingRuleObj;
 
                     $extDataBarObj = new ConditionalDataBarExtension();
-                    $extFormattingRuleObj->setDataBar($extDataBarObj);
+                    $extFormattingRuleObj->setDataBarExt($extDataBarObj);
 
                     $dataBarXml = $extCfRuleXml->dataBar;
                     self::parseExtDataBarAttributesFromXml($extDataBarObj, $dataBarXml);
@@ -152,12 +171,12 @@ class ConditionalFormattingRuleExtension
         return $this;
     }
 
-    public function getDataBar(): ConditionalDataBarExtension
+    public function getDataBarExt(): ConditionalDataBarExtension
     {
         return $this->dataBar;
     }
 
-    public function setDataBar(ConditionalDataBarExtension $dataBar): self
+    public function setDataBarExt(ConditionalDataBarExtension $dataBar): self
     {
         $this->dataBar = $dataBar;
 

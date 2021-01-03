@@ -16,7 +16,7 @@ class ConditionalDataBar
     /** @var ConditionalFormatValueObject */
     private $maximumConditionalFormatValueObject;
 
-    /** @var Color */
+    /** @var string */
     private $color;
 
     /** <extLst> */
@@ -76,12 +76,12 @@ class ConditionalDataBar
     }
 
 
-    public function getColor(): Color
+    public function getColor(): string
     {
         return $this->color;
     }
 
-    public function setColor(Color $color): self
+    public function setColor(string $color): self
     {
         $this->color = $color;
 
