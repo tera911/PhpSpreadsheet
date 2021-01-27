@@ -8,6 +8,14 @@ use PhpOffice\PhpSpreadsheet\IComparable;
 
 class BaseDrawing implements IComparable
 {
+
+    /**
+     * Anchor Type.
+     */
+    const DRAWING_ANCHOR_MOVE_AND_RESIZE = 0;
+    const DRAWING_ANCHOR_MOVE_DONT_RESIZE = 1;
+    const DRAWING_ANCHOR_DONT_MOVE_AND_RESIZE = 2;
+
     /**
      * Image counter.
      *
@@ -107,6 +115,12 @@ class BaseDrawing implements IComparable
     private $hyperlink;
 
     /**
+     * Anchor Type.
+     * @var int
+     */
+    private $anchorType;
+
+    /**
      * Create a new BaseDrawing.
      */
     public function __construct()
@@ -123,6 +137,7 @@ class BaseDrawing implements IComparable
         $this->resizeProportional = true;
         $this->rotation = 0;
         $this->shadow = new Drawing\Shadow();
+        $this->anchorType = self::DRAWING_ANCHOR_MOVE_DONT_RESIZE;
 
         // Set image index
         ++self::$imageCounter;
@@ -379,12 +394,12 @@ class BaseDrawing implements IComparable
      * $objDrawing->setWidthAndHeight(160,120);
      * </code>
      *
-     * @author Vincent@luo MSN:kele_100@hotmail.com
-     *
      * @param int $width
      * @param int $height
      *
      * @return $this
+     * @author Vincent@luo MSN:kele_100@hotmail.com
+     *
      */
     public function setWidthAndHeight($width, $height)
     {
@@ -528,5 +543,26 @@ class BaseDrawing implements IComparable
     public function getHyperlink()
     {
         return $this->hyperlink;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getAnchorType(): int
+    {
+        return $this->anchorType;
+    }
+
+    /**
+     * @param int $anchorType
+     */
+    public function setAnchorType(int $anchorType): self
+    {
+        if (in_array($anchorType, [self::DRAWING_ANCHOR_MOVE_AND_RESIZE, self::DRAWING_ANCHOR_MOVE_DONT_RESIZE,
+                                   self::DRAWING_ANCHOR_DONT_MOVE_AND_RESIZE])) {
+            $this->anchorType = $anchorType;
+        }
+        return $this;
     }
 }

@@ -155,8 +155,15 @@ class Drawing extends WriterPart
     public function writeDrawing(XMLWriter $objWriter, BaseDrawing $pDrawing, $pRelationId = -1, $hlinkClickId = null): void
     {
         if ($pRelationId >= 0) {
-            // xdr:oneCellAnchor
-            $objWriter->startElement('xdr:oneCellAnchor');
+            // xdr:oneCellAnchor or xdr:twoCellAnchor
+            if ($pDrawing->getAnchorType() === BaseDrawing::DRAWING_ANCHOR_MOVE_DONT_RESIZE) {
+                $objWriter->startElement('xdr:oneCellAnchor');
+            } else {
+                $objWriter->startElement('xdr:twoCellAnchor');
+                if ($pDrawing->getAnchorType() === BaseDrawing::DRAWING_ANCHOR_DONT_MOVE_AND_RESIZE) {
+                    $objWriter->writeAttribute('editAs', 'absolute');
+                }
+            }
             // Image location
             $aCoordinates = Coordinate::coordinateFromString($pDrawing->getCoordinates());
             $aCoordinates[0] = Coordinate::columnIndexFromString($aCoordinates[0]);
@@ -168,6 +175,17 @@ class Drawing extends WriterPart
             $objWriter->writeElement('xdr:row', $aCoordinates[1] - 1);
             $objWriter->writeElement('xdr:rowOff', \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToEMU($pDrawing->getOffsetY()));
             $objWriter->endElement();
+
+            // xdr:to
+            if (in_array($pDrawing->getAnchorType(),
+                [BaseDrawing::DRAWING_ANCHOR_MOVE_AND_RESIZE, BaseDrawing::DRAWING_ANCHOR_DONT_MOVE_AND_RESIZE])) {
+                $objWriter->startElement('xdr:to');
+                $objWriter->writeElement('xdr:col', $aCoordinates[0] - 1);
+                $objWriter->writeElement('xdr:colOff', \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToEMU($pDrawing->getOffsetX() + $pDrawing->getWidth()));
+                $objWriter->writeElement('xdr:row', $aCoordinates[1] - 1);
+                $objWriter->writeElement('xdr:rowOff', \PhpOffice\PhpSpreadsheet\Shared\Drawing::pixelsToEMU($pDrawing->getOffsetY() + $pDrawing->getHeight()));
+                $objWriter->endElement();
+            }
 
             // xdr:ext
             $objWriter->startElement('xdr:ext');
